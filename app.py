@@ -8,17 +8,18 @@ app.secret_key = 'many random bytes'
 app.config['MYSQL_HOST'] = '35.198.55.42'
 app.config['MYSQL_USER'] = 'netbr'
 app.config['MYSQL_PASSWORD'] = 'netbr'
-app.config['MYSQL_DB'] = 'RH'
+app.config['MYSQL_DB'] = 'DEV'
 
 mysql = MySQL(app)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def Index():
     error = None
     if request.method == 'POST':
+     
         # Get users
         cur = mysql.connection.cursor()
-        cur.execute("SELECT email, pass, profile FROM users")
+        cur.execute("SELECT email, pass, profile, status FROM DEV.users")
         data = cur.fetchall()
         cur.close()
         
@@ -27,6 +28,7 @@ def Index():
             email = user[0]
             password  = user[1]
             profile = user[2]
+            status = user[3]
     
             # Verify email
             if request.form['email'] == email:
@@ -36,14 +38,22 @@ def Index():
                 if request.form['password'] == password:
                     print("Senha está correta!")
 
+                    # Verify Status USER
+                    if status != "true":
+                        # Return user disable
+                        error = 'The user is disabled.'
+                        return render_template('login.html', error=error)
+
                     # Verify profile ADMIN
                     if profile == 1:
+                        # Redirect ADM Page
                         return redirect(url_for('admin'))
-        
-                    return redirect(url_for('Index'))
-
+                    
+                    # Redirect home
+                    return redirect(url_for('home'))
+    
         error = 'Invalid Credentials. Please try again.'
-
+    
     return render_template('login.html', error=error)
 
 @app.route('/admin')
@@ -69,9 +79,9 @@ def insert():
         profile = request.form['profile']
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO users (firstname, lastname, phone, email, pass, profile) VALUES (%s, %s, %s, %s, %s, %s)", (firstname, lastname, phone, email, password, profile))
+        cur.execute("INSERT INTO users (firstname, lastname, phone, email, pass, profile, status) VALUES (%s, %s, %s, %s, %s, %s)", (firstname, lastname, phone, email, password, profile, "true"))
         mysql.connection.commit()
-        return redirect(url_for('Index'))
+        return redirect(url_for('admin'))
 
 
 @app.route('/delete/<string:id_data>', methods = ['GET'])
@@ -81,7 +91,7 @@ def delete(id_data):
     cur = mysql.connection.cursor()
     cur.execute("DELETE FROM users WHERE email=%s", (id_data,))
     mysql.connection.commit()
-    return redirect(url_for('Index'))
+    return redirect(url_for('admin'))
 
 
 
