@@ -1,5 +1,5 @@
 # mysql-application
-Esta aplicação foi desenvolvida para realizar uma integração com o IdentityIQ através do conector JDBC.
+Esta aplicação foi desenvolvida para realizar integração com o IdentityIQ através do conector JDBC.
 
 ## install
 $ sudo apt update <br>
