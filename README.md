@@ -10,4 +10,4 @@ $ sudo pip install flask_mysqldb  <br>
 
 
 ## testing
-$ python3 "__init__"
+$ python3 app
