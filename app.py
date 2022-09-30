@@ -12,15 +12,39 @@ app.config['MYSQL_DB'] = 'RH'
 
 mysql = MySQL(app)
 
-
 @app.route('/')
 def Index():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT  * FROM users")
-    data = cur.fetchall()
-    cur.close()
+    error = None
+    if request.method == 'POST':
+        # Get users
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT email, pass, profile FROM users")
+        data = cur.fetchall()
+        cur.close()
+        
+        # Users looping
+        for user in data:
+            email = user[0]
+            password  = user[1]
+            profile = user[2]
+    
+            # Verify email
+            if request.form['email'] == email:
+                print("Encontrou o email")
 
-    return render_template('index.html', users=data )
+                # Verify password
+                if request.form['password'] == password:
+                    print("Senha está correta!")
+
+                    # Verify profile ADMIN
+                    if profile == 1:
+                        return redirect(url_for('admin'))
+        
+                    return redirect(url_for('Index'))
+
+        error = 'Invalid Credentials. Please try again.'
+
+    return render_template('login.html', error=error)
 
 @app.route('/admin')
 def admin():
@@ -87,42 +111,14 @@ def update():
 
 
 # Route for handling the login page logic
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT  * FROM users")
+    data = cur.fetchall()
+    cur.close()
 
-        # Get users
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT email, pass, profile FROM users")
-        data = cur.fetchall()
-        cur.close()
-        
-        # Users looping
-        for user in data:
-            email = user[0]
-            password  = user[1]
-            profile = user[2]
-    
-            # Verify email
-            if request.form['email'] == email:
-                print("Encontrou o email")
-
-                # Verify password
-                if request.form['password'] == password:
-                    print("Senha está correta!")
-
-                    # Verify profile ADMIN
-                    if profile == 1:
-                        return redirect(url_for('admin'))
-        
-                    return redirect(url_for('Index'))
-
-        error = 'Invalid Credentials. Please try again.'
-
-    return render_template('login.html', error=error)
-
-
+    return render_template('index.html', users=data )
 
 
 if __name__ == "__main__":
