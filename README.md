@@ -1,6 +1,15 @@
 # mysql-application
 Esta aplicação foi desenvolvida para realizar uma integração com o IdentityIQ através do conector JDBC.
 
+<html>
+ <head>
+  <title>Utilizando a tag <br /> para quebra de linha.</title>
+ </head>
+ <body>
+  Utilizando a tag <br /> para quebra de linha.
+ </body>
+</html>
+
 install
 $ sudo apt update
 $ sudo apt-get install python3
